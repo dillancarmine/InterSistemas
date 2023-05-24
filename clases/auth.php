@@ -1,18 +1,21 @@
-<?php 
+<?php
 include "conexion.php";
 
-class Auth {
+class Auth
+{
     private $conexion;
 
-    public function __construct() {
+    public function __construct()
+    {
         $db = new Conexion();
         $this->conexion = $db->conectar();
     }
 
-    public function registrar($usuario, $password) {
-        $sql = "INSERT INTO usuarios (usuario, password) VALUES (?, ?)";
+    public function registrar($email, $password)
+    {
+        $sql = "INSERT INTO users (email, password) VALUES (?, ?)";
         $stmt = $this->conexion->prepare($sql);
-        $stmt->bind_param('ss', $usuario, $password);
+        $stmt->bind_param('ss', $email, $password);
 
         if ($stmt->execute()) {
             return true;
@@ -21,10 +24,11 @@ class Auth {
         }
     }
 
-    public function validarUsuarioExistente($usuario) {
-        $sql = "SELECT * FROM usuarios WHERE usuario = ?";
+    public function validarUsuarioExistente($email)
+    {
+        $sql = "SELECT * FROM users WHERE email = ?";
         $stmt = $this->conexion->prepare($sql);
-        $stmt->bind_param('s', $usuario);
+        $stmt->bind_param('s', $email);
         $stmt->execute();
         $stmt->store_result();
 
@@ -35,10 +39,11 @@ class Auth {
         }
     }
 
-    public function logear($usuario, $password) {
-        $sql = "SELECT * FROM usuarios WHERE usuario = ?";
+    public function logear($email, $password)
+    {
+        $sql = "SELECT * FROM users WHERE email = ?";
         $stmt = $this->conexion->prepare($sql);
-        $stmt->bind_param('s', $usuario);
+        $stmt->bind_param('s', $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -48,7 +53,8 @@ class Auth {
 
             if (password_verify($password, $passwordExistente)) {
                 session_start();
-                $_SESSION['usuario'] = $usuario;
+                $_SESSION['email'] = $email;
+                $_SESSION['client'] = $row['id'];
                 return true;
             } else {
                 return false;
@@ -56,6 +62,5 @@ class Auth {
         } else {
             return false;
         }
-    }   
+    }
 }
-?>
